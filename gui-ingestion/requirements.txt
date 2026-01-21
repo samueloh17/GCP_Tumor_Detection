@@ -1,0 +1,7 @@
+flask
+gunicorn
+google-cloud-storage
+nibabel
+numpy
+imageio
+google-cloud-logging

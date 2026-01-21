@@ -1,0 +1,31 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+**/venv/
+**/env/
+**/__pycache__/
+**/*.pyc
+
+# --- Librerías Médicas / Datos Locales ---
+# Ignoramos la carpeta donde se guardan las imágenes procesadas en tu PC
+local_storage/
+# Ignoramos los archivos temporales de NIfTI
+temp_*.nii
+*.nii.gz
+
+# --- Google Cloud ---
+# Nunca subir llaves de cuentas de servicio si las llegas a descargar
+*.json
+.gcloud/
+
+# --- IDEs (VS Code / PyCharm) ---
+.vscode/
+.idea/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
