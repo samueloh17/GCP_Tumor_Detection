@@ -13,6 +13,7 @@ env/
 # --- Librerías Médicas / Datos Locales ---
 # Ignoramos la carpeta donde se guardan las imágenes procesadas en tu PC
 local_storage/
+GCP_KEYS/
 # Ignoramos los archivos temporales de NIfTI
 temp_*.nii
 *.nii.gz

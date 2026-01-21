@@ -8,8 +8,11 @@ import io
 import imageio
 import sys 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from shared_utils.logger_config import get_logger
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 
 
@@ -24,9 +27,21 @@ app = Flask(__name__)
 
 # CONFIGURACIÓN DINÁMICA
 # Si no encuentra la variable, por defecto es 'LOCAL'
-ENV = os.getenv("APP_ENV", "LOCAL")
+ENV = os.getenv("ENV", "LOCAL")
 BUCKET_NAME = os.getenv("BUCKET_NAME", "mi-bucket-tesis")
 LOCAL_STORAGE_PATH = "local_storage" # Carpeta para pruebas en tu PC
+key_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+if key_path and os.path.exists(key_path):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = key_path
+    logger.info(f"🔐 Credenciales cargadas desde: {key_path}")
+else:
+    # Si no hay llave y estamos en CLOUD, asumimos que estamos dentro de GCP (Cloud Run)
+    if ENV == "CLOUD":
+        logger.info("☁️ Cloud Auth: Usando identidad nativa de GCP (Cloud Run/Functions)")
+    else:
+        logger.warning("⚠️ Sin credenciales locales y sin entorno Cloud. El proceso podría fallar.")
+
+    
 
 # Crear carpeta local si no existe
 if ENV == "LOCAL" and not os.path.exists(LOCAL_STORAGE_PATH):
@@ -75,8 +90,9 @@ def upload_nifti():
                 img_final = (img_norm * 255).astype(np.uint8)
                 imageio.imsave(img_buffer, img_final, format = "PNG")
                 img_buffer.seek(0)
-                blob = bucket.blob(f"staging/{study_id}/slice_{i}.npy")
-                blob.upload_from_file(img_buffer,content_type="imge/png")
+                slice_name = str(i).zfill(3)
+                blob = bucket.blob(f"staging/{study_id}/slice_{slice_name}.png")
+                blob.upload_from_file(img_buffer,content_type="image/png")
                 pass
             logger.info("PROCESS COMPLETED SUCCESSS")
             return jsonify({"status": "Cloud Upload Success", "id": study_id})
@@ -98,7 +114,7 @@ def upload_nifti():
                     img_norm = (img - img_min) / (img_range + EPSILON)
                     img_final = (img_norm * 255).astype(np.uint8)
 
-                    
+
                 slice_path = os.path.join(study_folder, f"slice_{i}.png")
                 imageio.imsave(slice_path,img_final, format="PNG")
             
