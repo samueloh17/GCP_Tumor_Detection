@@ -73,6 +73,7 @@ def upload_nifti():
             logger.info("PROCES ON CLOUD ENV")
             client = storage.Client()
             bucket = client.bucket(BUCKET_NAME)
+            base_path = f"staging/{study_id}"
             for i, img in enumerate(imgs, start = 1):
                 img_buffer = io.BytesIO()
                 img_min = np.min(img)
@@ -92,10 +93,15 @@ def upload_nifti():
                 img_buffer.seek(0)
                 slice_name = str(i).zfill(3)
                 blob = bucket.blob(f"staging/{study_id}/slice_{slice_name}.png")
-                blob.upload_from_file(img_buffer,content_type="image/png")
+                blob.upload_from_string(img_buffer.getvalue(), content_type="image/png")
+                
                 pass
             logger.info("PROCESS COMPLETED SUCCESSS")
-            return jsonify({"status": "Cloud Upload Success", "id": study_id})
+
+            return jsonify({"status": "Cloud Upload Success", 
+                            "id": study_id,
+                             "folder_path" : f"gs://{BUCKET_NAME}/{base_path}" })
+        
         
         else:
             logger.info("PROCES ON LOCAL ENV")
@@ -121,14 +127,14 @@ def upload_nifti():
             logger.info("PROCESS COMPLETED SUCCESSS")
             return jsonify({
                 "status": "Local Save Success",
-                "path": os.path.abspath(study_folder),
-                "slices": data.shape[2]
+                "id": study_id,
+                "folder_path": os.path.abspath(study_folder)
             })
         
 
     except Exception as e : 
         logger.error(f"CRITICAL ERROR IN STUDY {study_id}, {e}",exc_info = True)
-
+        return jsonify({"status": "error", "message": str(e)}), 500
     finally:
         if os.path.exists(temp_nii):
             os.remove(temp_nii)
