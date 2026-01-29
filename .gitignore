@@ -15,8 +15,11 @@ env/
 local_storage/
 GCP_KEYS/
 models/
+
 unet-inference/.vscode
 unet-inference/unet-good-formay
+
+
 # Ignoramos los archivos temporales de NIfTI
 temp_*.nii
 *.nii.gz
