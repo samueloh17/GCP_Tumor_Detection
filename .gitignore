@@ -17,7 +17,7 @@ GCP_KEYS/
 models/
 
 unet-inference/.vscode
-unet-inference/unet-good-formay
+unet-inference/unet-good-format
 
 
 # Ignoramos los archivos temporales de NIfTI
