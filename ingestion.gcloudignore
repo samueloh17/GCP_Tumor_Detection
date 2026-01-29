@@ -1,0 +1,42 @@
+# --- Dependencias y Entornos ---
+venv/
+.env
+bin/
+lib/
+share/
+Include/
+
+# --- Datos Médicos y Temporales (CRÍTICO) ---
+# No queremos subir archivos NIfTI ni PNGs de prueba a la nube
+*.nii
+*.nii.gz
+*.png
+*.jpg
+temp_*
+data/
+output/
+
+# --- Otros Microservicios ---
+# Como este ignore es para el servicio de INGESTA, ignoramos lo demás
+# para que la subida sea instantánea.
+unet-inference/
+notebooks/
+research/
+GCP_KEYS/
+models/
+
+# --- Archivos de Sistema y Python ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.DS_Store
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# --- Archivos de logs ---
+*.log
+ingestion_service.log
