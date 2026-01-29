@@ -66,9 +66,13 @@ def upload_nifti():
     file.save(temp_nii)
     
     try:
-        data = nb.load(temp_nii)
-        imgs = data.get_fdata()
-        
+        data = nb.load(temp_nii, mmap = False)
+        data = nb.as_closest_canonical(data)
+        volume = data.get_fdata()
+        shape = volume.shape
+        slice_axis = np.argmin(shape)
+        imgs = np.moveaxis(volume,slice_axis,0)
+        logger.info(f"The final shape for the imgs array is: {imgs.shape}")
         if ENV == "CLOUD":
             logger.info("PROCES ON CLOUD ENV")
             client = storage.Client()
@@ -79,6 +83,7 @@ def upload_nifti():
                 img_min = np.min(img)
                 img_max = np.max(img)
                 img_range = img_max - img_min
+                logger.info(f"The shappe of the images is : {img.shape}")
                 if img_range == 0:
                     img_final = np.zeros(img.shape, dtype=np.uint8)
                     logger.warning(f"Slice {i} is empty or constant. Generating black image.")
@@ -109,10 +114,12 @@ def upload_nifti():
             os.makedirs(study_folder)
             
             for i, img in enumerate(imgs, start = 1):
+                
                 img_buffer = io.BytesIO()
                 img_min = np.min(img)
                 img_max = np.max(img)
                 img_range = img_max - img_min
+                logger.info(f"The shappe of the images is : {img.shape}")
                 if img_range == 0:
                     img_final = np.zeros(img.shape, dtype=np.uint8)
                     logger.warning(f"Slice {i} is empty or constant. Generating black image.")
