@@ -14,6 +14,7 @@ env/
 # Ignoramos la carpeta donde se guardan las imágenes procesadas en tu PC
 local_storage/
 GCP_KEYS/
+models/
 # Ignoramos los archivos temporales de NIfTI
 temp_*.nii
 *.nii.gz
