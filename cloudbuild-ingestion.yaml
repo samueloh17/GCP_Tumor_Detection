@@ -1,0 +1,41 @@
+steps:
+  # 1. Construir la imagen de Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Build Image'
+    args: [
+      'build',
+      '-t', 'us-central1-docker.pkg.dev/samuel-ia-ml-enginner/tesis-repo/ingestion-service:v1',
+      '-f', 'gui-ingestion/Dockerfile',
+      '.'
+    ]
+
+  # 2. Empujar la imagen al Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'Push Image'
+    args: ['push', 'us-central1-docker.pkg.dev/samuel-ia-ml-enginner/tesis-repo/ingestion-service:v1']
+
+  # 3. Desplegar en Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Deploy to Cloud Run'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ingesta-service'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/samuel-ia-ml-enginner/tesis-repo/ingestion-service:v1'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      # Usamos el formato de lista para evitar errores de comas
+      - '--set-env-vars'
+      - 'ENV=CLOUD,BUCKET_NAME=sochoa-tesis-medical-data_from_nii'
+      - '--allow-unauthenticated'
+
+# Definimos que la imagen resultante se registre en GCP
+images:
+  - 'us-central1-docker.pkg.dev/samuel-ia-ml-enginner/tesis-repo/ingestion-service:v1'
+
+# Opcional: Tiempo máximo de espera (10 minutos por si el build es pesado)
+timeout: '600s'
